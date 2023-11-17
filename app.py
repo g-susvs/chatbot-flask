@@ -42,7 +42,7 @@ def chat():
 
         return response
 
-    def learn(user_input):
+    def learn(user_input, old_input):
         learn = False
         banned_words = kb.get("banned_words", [])
         has_banned_words = any(ban.lower() in user_input.lower() for ban in banned_words)
@@ -53,23 +53,32 @@ def chat():
         else:
             active_banned_words = False
             learn = True
-            kb["question"].append({"question": user_input, "answer": ""})  # Aquí es necesario ajustar la lógica para obtener la respuesta del usuario
+            kb["question"].append({"question": old_input, "answer": user_input})  # Aquí es necesario ajustar la lógica para obtener la respuesta del usuario
             save_knowledge_base('knowledge_base.json', kb)
+            
             response = '¡Gracias! ¡He aprendido algo nuevo!'
+            # response = 'No sé la respuesta. ¿Puede enseñármela?'
 
         return response
 
     try:
         user_input = request.json['user_input']
+        old_input = request.json['old_input'] or ''
         
-        # Lógica del chatbot
+  
+        
+        
+        if not active_banned_words and old_input:
+            response = learn(user_input, old_input)
+            return jsonify({'response': response, 'active_banned_words': active_banned_words})
+
+         # Lógica del chatbot
         best_match = find_best_match(user_input, [q["question"] for q in kb["question"]])
-        
         response = findE(user_input)
-        
         if not active_banned_words and response == "No sé la respuesta. ¿Puede enseñármela?":
-            Learn = True
-            response = learn(user_input)
+            response = "No sé la respuesta. ¿Puede enseñármela?"
+            # Learn = True
+        
 
         return jsonify({'response': response, 'active_banned_words': active_banned_words})
     except Exception as e:
