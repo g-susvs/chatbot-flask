@@ -21,7 +21,7 @@ def get_answer_for_mistake(question: str, knowledge_base: dict) -> str | None:
             return q["bAnswer"]
 
 def get_answer_for_question(question: str, knowledge_base: dict) -> str|None:
-    for q in knowledge_base["question"]:
+    for q in knowledge_base:
         if q["question"] == question:
             return q["answer"]
 
